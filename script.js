@@ -12,15 +12,14 @@ window.addEventListener("load", () => {
           this.game.keys.indexOf(event.key) === -1
         ) {
           this.game.keys.push(event.key);
-        } else if (event.key === "") {
-          this.game.shootTop();
+        } else if (event.key === " ") {
+          this.game.Player.shootTop();
         }
       });
       window.addEventListener("keyup", () => {
         if (this.game.keys.indexOf(event.key) > -1) {
           this.game.keys.splice(this.game.keys.indexOf(event.key), 1);
         }
-        console.log(this.game.keys);
       });
     }
   }
@@ -42,7 +41,7 @@ window.addEventListener("load", () => {
     }
     draw(context) {
       context.fillStyle = "yellow";
-      fillRect(this.x, this.y, this.width, this.height);
+      context.fillRect(this.x, this.y, this.width, this.height);
     }
   }
   class Particle {}
@@ -85,9 +84,15 @@ window.addEventListener("load", () => {
       context.fillStyle = "red";
       // drawing rectangle at Player current X and Y position
       context.fillRect(this.x, this.y, this.width, this.height);
+      this.Projectiles.forEach((projectile) => {
+        projectile.draw(context);
+      });
     }
     shootTop() {
-      this.Projectiles.push(new Projectile(this.game, this.x, this.y));
+      if (this.game.ammo > 0) {
+        this.Projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
+        this.game.ammo--
+      }
     }
   }
 
@@ -102,6 +107,7 @@ window.addEventListener("load", () => {
       this.Player = new Player(this);
       this.input = new InputHandler(this);
       this.keys = [];
+      this.ammo = 20; // Number of ammo
     }
     update() {
       // update player
