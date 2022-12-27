@@ -81,7 +81,7 @@ window.addEventListener("load", () => {
 
     // this method to draw the graphics represent in the player
     draw(context) {
-      context.fillStyle = "red";
+      context.fillStyle = "black";
       // drawing rectangle at Player current X and Y position
       context.fillRect(this.x, this.y, this.width, this.height);
       this.Projectiles.forEach((projectile) => {
@@ -90,8 +90,8 @@ window.addEventListener("load", () => {
     }
     shootTop() {
       if (this.game.ammo > 0) {
-        this.Projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30));
-        this.game.ammo--
+        this.Projectiles.push(new Projectile(this.game, this.x + 80, this.y + 30))
+        this.game.ammo--;
       }
     }
   }
@@ -99,33 +99,65 @@ window.addEventListener("load", () => {
   class Enemy {}
   class Layer {}
   class Background {}
-  class UI {}
+  class UI {
+    constructor(game) {
+      this.game = game;
+      this.fontSize = 25;
+      this.fontFamily = "";
+      this.color = "yellow";
+    }
+    draw(context) {
+      // ammo
+      context.fillStyle = this.color;
+      for (let i = 0; i < this.game.ammo; i++) {
+        context.fillRect(20 + 5 * i, 50, 3, 20);
+      }
+    }
+  }
   class Game {
     constructor(width, height) {
       this.width = width;
       this.height = height;
       this.Player = new Player(this);
       this.input = new InputHandler(this);
+      this.ui = new UI(this);
       this.keys = [];
       this.ammo = 20; // Number of ammo
+      this.maxAmmo = 50;
+      this.ammoTimer = 0;
+      this.ammoIntervel = 500;
     }
-    update() {
+    update(deltaTime) {
       // update player
       this.Player.update();
+      if (this.ammoTimer > this.ammoIntervel) {
+        if (this.ammo < this.maxAmmo) {
+          this.ammo++;
+        }
+        this.ammoTimer = 0;
+      } else {
+        this.ammoTimer += deltaTime;
+      }
     }
     draw(context) {
       // draw player
       this.Player.draw(context);
+      this.ui.draw(context);
     }
   }
+
   const game = new Game(canvas.width, canvas.height);
+  let lastTime = 0;
+
   // animation loop to run and update and draw methods over and over
-  function animate() {
+  function animate(timeStamp) {
+    const deltaTime = timeStamp - lastTime;
+    lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    game.update();
+    game.update(deltaTime);
     game.draw(ctx);
     // tells the browser that we  an animation
     requestAnimationFrame(animate);
   }
-  animate();
+  animate(0);
 });
